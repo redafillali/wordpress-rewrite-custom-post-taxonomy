@@ -1,5 +1,6 @@
 <?php
 
+
 function wpg_distributor() {
 	$labels = array(
 		'name'               => _x( 'distributors', 'post type general name' ),
@@ -28,7 +29,7 @@ function wpg_distributor() {
 		'supports'           => array( 'title', 'editor', 'custom-fields', 'thumbnail', 'comments'),
 		'has_archive'   => true,
 		'taxonomies' => array('distributors'),
-		'rewrite'           => array( 'slug' => 'distributor', 'with_front' => false ) // added
+		'rewrite'           => array( 'slug' => 'distributor/%distributor_category%', 'with_front' => false )
 	);
 	register_post_type( 'distributors', $args );	
 }
@@ -59,9 +60,22 @@ function create_distributor_taxonomies() {
 		'show_ui'           => true,
 		'show_admin_column' => true,
 		'query_var'         => true,
-		'rewrite'           => array( 'slug' => '/distributors', 'hierarchical' => true ), // changed
+		'rewrite'           => array( 'slug' => '/distributors', 'hierarchical' => true ),
 	);
 	register_taxonomy( 'distributor_category', array( 'distributors' ), $args );
 }
+
+
+function ats_kliniek_filter_post_type_link($link, $post)
+{
+if ($post->post_type != 'distributors')
+    return $link;
+
+if ($cats = get_the_terms($post->ID, 'distributor_category'))
+    $link = str_replace('%distributor_category%', array_pop($cats)->slug, $link);
+return $link;
+}
+add_filter('post_type_link', 'ats_kliniek_filter_post_type_link', 10, 2);
+
 
 flush_rewrite_rules( false );
