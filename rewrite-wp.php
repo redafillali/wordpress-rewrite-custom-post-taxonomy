@@ -66,16 +66,19 @@ function create_distributor_taxonomies() {
 }
 
 
-function ats_kliniek_filter_post_type_link($link, $post)
+function ats_kliniek_filter_post_type_link($link, $post) // Updated to include Parent and Child taxonomy
 {
 if ($post->post_type != 'distributors')
     return $link;
 
-if ($cats = get_the_terms($post->ID, 'distributor_category'))
-    $link = str_replace('%distributor_category%', array_pop($cats)->slug, $link);
+if ($cats = get_the_terms($post->ID, 'distributor_category')) :
+	$cat = array_shift($cats)->slug."/".array_pop($cats)->slug;
+    $link = str_replace('%distributor_category%', $cat, $link);
+endif;
+	
 return $link;
 }
 add_filter('post_type_link', 'ats_kliniek_filter_post_type_link', 10, 2);
 
 
-flush_rewrite_rules( false );
+flush_rewrite_rules( false ); // Must be removed in the prod environement 
